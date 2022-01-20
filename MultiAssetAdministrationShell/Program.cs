@@ -21,6 +21,7 @@ using BaSyx.Models.Core.AssetAdministrationShell.Implementations;
 using BaSyx.Models.Extensions;
 using BaSyx.Utils.ResultHandling;
 using BaSyx.Utils.Settings.Types;
+using NLog.Web;
 using System;
 using System.Collections.Generic;
 
@@ -36,6 +37,10 @@ namespace MultiAssetAdministrationShell
             aasRepositorySettings.ServerConfig.Hosting.Urls.Add("https://+:5443");
 
             AssetAdministrationShellRepositoryHttpServer server = new AssetAdministrationShellRepositoryHttpServer(aasRepositorySettings);
+
+            //Configure the entire application to use your own logger library (here: Nlog)
+            server.WebHostBuilder.UseNLog();
+
             AssetAdministrationShellRepositoryServiceProvider repositoryService = new AssetAdministrationShellRepositoryServiceProvider();
 
             double baseValue = 2;

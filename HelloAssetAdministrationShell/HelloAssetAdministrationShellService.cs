@@ -107,6 +107,11 @@ namespace HelloAssetAdministrationShell
                 OutputVariables = new OperationVariableSet() { new Property<string>("ReturnValue") }
             });
 
+            helloSubmodel.SubmodelElements.Add(new Operation("HelloOperation2")
+            {
+                Description = new LangStringSet() { new LangString("en", "This operation does nothing") }
+            });
+
             aas.Submodels = new ElementContainer<ISubmodel>();
             aas.Submodels.Add(helloSubmodel);
 

@@ -27,6 +27,7 @@ using BaSyx.Registry.Server.Http;
 using BaSyx.Submodel.Server.Http;
 using BaSyx.Utils.Settings.Sections;
 using BaSyx.Utils.Settings.Types;
+using NLog.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,6 +64,7 @@ namespace ComplexAssetAdministrationShellScenario
             submodelRepositorySettings.ServerConfig.Hosting.Urls.Add("https://+:6499");
 
             SubmodelRepositoryHttpServer multiServer = new SubmodelRepositoryHttpServer(submodelRepositorySettings);
+            multiServer.WebHostBuilder.UseNLog();
             SubmodelRepositoryServiceProvider repositoryService = new SubmodelRepositoryServiceProvider();
 
             for (int i = 0; i < 3; i++)
@@ -134,6 +136,7 @@ namespace ComplexAssetAdministrationShellScenario
             aasRepositorySettings.ServerConfig.Hosting.Urls.Add("https://+:5499");
 
             AssetAdministrationShellRepositoryHttpServer multiServer = new AssetAdministrationShellRepositoryHttpServer(aasRepositorySettings);
+            multiServer.WebHostBuilder.UseNLog();
             AssetAdministrationShellRepositoryServiceProvider repositoryService = new AssetAdministrationShellRepositoryServiceProvider();
 
             for (int i = 0; i < 3; i++)
@@ -215,6 +218,7 @@ namespace ComplexAssetAdministrationShellScenario
             submodelServerSettings.ServerConfig.Hosting.Urls.Add("https://localhost:5422");
 
             SubmodelHttpServer submodelServer = new SubmodelHttpServer(submodelServerSettings);
+            submodelServer.WebHostBuilder.UseNLog();
             ISubmodelServiceProvider submodelServiceProvider = testSubmodel.CreateServiceProvider();
             submodelServer.SetServiceProvider(submodelServiceProvider);
             submodelServiceProvider.UseAutoEndpointRegistration(submodelServerSettings.ServerConfig);
@@ -232,6 +236,7 @@ namespace ComplexAssetAdministrationShellScenario
             aasServiceProvider.UseAutoEndpointRegistration(aasServerSettings.ServerConfig);
 
             AssetAdministrationShellHttpServer aasServer = new AssetAdministrationShellHttpServer(aasServerSettings);
+            aasServer.WebHostBuilder.UseNLog();
             aasServer.SetServiceProvider(aasServiceProvider);
             aasServer.ApplicationStopping = () => { registryClient.DeleteAssetAdministrationShellRegistration(aas.Identification.Id); };
             aasServer.AddBaSyxUI(PageNames.AssetAdministrationShellServer);
@@ -257,6 +262,7 @@ namespace ComplexAssetAdministrationShellScenario
             };
 
             RegistryHttpServer registryServer = new RegistryHttpServer(registrySettings);
+            registryServer.WebHostBuilder.UseNLog();
             FileBasedRegistry fileBasedRegistry = new FileBasedRegistry();
             registryServer.SetRegistryProvider(fileBasedRegistry);
             registryServer.AddBaSyxUI(PageNames.AssetAdministrationShellRegistryServer);

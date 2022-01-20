@@ -17,6 +17,7 @@ using BaSyx.Models.Core.AssetAdministrationShell.Generics;
 using BaSyx.Models.Core.AssetAdministrationShell.Implementations;
 using BaSyx.Submodel.Server.Http;
 using BaSyx.Utils.Settings.Types;
+using NLog.Web;
 using System;
 
 namespace SimpleAssetAdministrationShell
@@ -37,6 +38,7 @@ namespace SimpleAssetAdministrationShell
             submodelServerSettings.ServerConfig.Hosting.Urls.Add("https://+:5440");
 
             SubmodelHttpServer submodelServer = new SubmodelHttpServer(submodelServerSettings);
+            submodelServer.WebHostBuilder.UseNLog();
             ISubmodelServiceProvider submodelServiceProvider = testSubmodel.CreateServiceProvider();
             submodelServer.SetServiceProvider(submodelServiceProvider);
             submodelServiceProvider.UseAutoEndpointRegistration(submodelServerSettings.ServerConfig);
@@ -56,6 +58,7 @@ namespace SimpleAssetAdministrationShell
             serviceProvider.UseAutoEndpointRegistration(aasServerSettings.ServerConfig);
 
             AssetAdministrationShellHttpServer aasServer = new AssetAdministrationShellHttpServer(aasServerSettings);
+            aasServer.WebHostBuilder.UseNLog();
             aasServer.SetServiceProvider(serviceProvider);
             aasServer.AddBaSyxUI(PageNames.AssetAdministrationShellServer);
             aasServer.AddSwagger(Interface.AssetAdministrationShell);

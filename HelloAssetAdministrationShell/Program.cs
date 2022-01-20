@@ -15,23 +15,27 @@ using BaSyx.Common.UI.Swagger;
 using BaSyx.Discovery.mDNS;
 using BaSyx.Utils.Settings.Types;
 using NLog;
+using NLog.Web;
 
 namespace HelloAssetAdministrationShell
 {
     class Program
     {
-        //Enable logging
+        //Create logger for the application
         private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
 
         static void Main(string[] args)
         {
-            logger.Info("Starting Asset Administration Shell's HTTP-REST interface...");
+            logger.Info("Starting HelloAssetAdministrationShell's HTTP server...");
 
             //Loading server configurations settings from ServerSettings.xml;
             ServerSettings serverSettings = ServerSettings.LoadSettingsFromFile("ServerSettings.xml");
 
             //Initialize generic HTTP-REST interface passing previously loaded server configuration
-            AssetAdministrationShellHttpServer aasServer = new AssetAdministrationShellHttpServer(serverSettings);
+            AssetAdministrationShellHttpServer server = new AssetAdministrationShellHttpServer(serverSettings);
+
+            //Configure the entire application to use your own logger library (here: Nlog)
+            server.WebHostBuilder.UseNLog();
 
             //Instantiate Asset Administration Shell Service
             HelloAssetAdministrationShellService shellService = new HelloAssetAdministrationShellService();
@@ -40,26 +44,30 @@ namespace HelloAssetAdministrationShell
             shellService.UseAutoEndpointRegistration(serverSettings.ServerConfig);
 
             //Assign Asset Administration Shell Service to the generic HTTP-REST interface
-            aasServer.SetServiceProvider(shellService);
+            server.SetServiceProvider(shellService);
 
             //Add Swagger documentation and UI
-            aasServer.AddSwagger(Interface.AssetAdministrationShell);
+            server.AddSwagger(Interface.AssetAdministrationShell);
 
             //Add BaSyx Web UI
-            aasServer.AddBaSyxUI(PageNames.AssetAdministrationShellServer);
+            server.AddBaSyxUI(PageNames.AssetAdministrationShellServer);
 
-            aasServer.ApplicationStarted = () =>
+            //Action that gets executued when server is fully started
+            server.ApplicationStarted = () =>
             {
+                //Use mDNS discovery mechanism in the network. It is used to register at the Registry automatically.
                 shellService.StartDiscovery();
             };
 
-            aasServer.ApplicationStopping = () =>
+            //Action that gets executed when server is shutting down
+            server.ApplicationStopping = () =>
             {
+                //Stop mDNS discovery thread
                 shellService.StopDiscovery();
             };
 
-            //Run HTTP-REST interface
-            aasServer.Run();           
+            //Run HTTP server
+            server.Run();           
         }
     }
 }
