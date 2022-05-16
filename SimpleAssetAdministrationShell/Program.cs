@@ -51,7 +51,7 @@ namespace SimpleAssetAdministrationShell
             aasServerSettings.ServerConfig.Hosting.Environment = "Development";
             aasServerSettings.ServerConfig.Hosting.Urls.Add("http://+:5080");
             aasServerSettings.ServerConfig.Hosting.Urls.Add("https://+:5443");
-            aasServerSettings.Miscellaneous.Add("CompanyLogo", "/images/Bosch.png");
+            aasServerSettings.Miscellaneous.Add("CompanyLogo", "/images/MyCompanyLogo.png");
 
             IAssetAdministrationShellServiceProvider serviceProvider = aas.CreateServiceProvider(true);
             serviceProvider.SubmodelRegistry.RegisterSubmodelServiceProvider(testSubmodel.IdShort, submodelServiceProvider);
