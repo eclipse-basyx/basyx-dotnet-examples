@@ -9,9 +9,18 @@
         <Url>https://+:5143</Url>
       </Urls>
     </Hosting>
-    <DefaultRoute/>
+    <DefaultRoute>hello-ui</DefaultRoute>
+    <PathBase>/testi</PathBase>
   </ServerConfig>
-  <Miscellaneous>
+  <UIConfig>
+    <!-- If the path start with /files you can access the ContentPath defined above. -->
+    <Url>hello-ui</Url>
     <CompanyLogo>/images/MyCompanyLogo.png</CompanyLogo>
-  </Miscellaneous>
+    <Title>BaSyx AdminShell UI</Title>
+    <Links>
+      <Link name="Swagger-Doc" href="/swagger"/>
+    </Links>
+  </UIConfig>
+  <!-- Add whatever you like for later use in your code -->
+  <Miscellaneous/>
 </ServerSettings>
