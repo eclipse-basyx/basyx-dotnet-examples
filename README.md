@@ -31,3 +31,12 @@ Speaking of insanity, the ComplexAssetAdministrationShell example will knock you
 
 And again you won't even leave *Program.cs*. Isn't it beautiful?
 
+## Cloud Edge Deployment
+This [example](CloudEdgeDeploymentScenario) shows the setup and usage of a distributed deployment. It contains two servers as shown in the illustration.
+
+## Static Dynamic Extension
+This [example](StaticDynamicScenario) shows the enrichment of AAS data loaded from an aasx file with a dynamically created Submodel.
+
+
+
+
