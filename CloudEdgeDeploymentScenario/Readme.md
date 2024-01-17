@@ -1,5 +1,5 @@
 # Cloud Edge Deployment Scenario
-This example shows the enrichment of AAS data loaded from an aasx file with a dynamically created Submodel. 
+This example shows the setup and usage of a distributed deployment. It contains two servers as shown in the illustration.
 
 The following components are used: 
 
@@ -11,38 +11,45 @@ The following components are used:
 
 
 
-In the first step, the AAS-Server and Registry-Server are initiated using the methods startupRegistryServer() and startupAASServer() respectively.
+Server one is hosted directly on a smart device and provides values measured directly on the device (e.g. a current temperature). It is called "EdgeServer" in the scenario.
 
-An AAS-Client is also set up to facilitate communication with the AAS-Server.
+The second server is a cloud server, which hosts the Asset Administration Shell and another submodel containing static property values of the device (e.g. a maximum temperature). It is called "CloudServer".
 
-Following this, the AASX Class is employed to extract AAS data from a provided .aasx file.
+The RegistryServer, EdgeServer and CloudServer are started in the methodes _startupRegistryServer()_, _startupEdgeServer()_ and _startupCloudServer()_ called by the constructor of the CloudEdgeDeploymentScenario class. 
 
-The extracted AAS information from the file is then created on the AAS-Server with the assistance of the AAS-Client.
+A new Submodel called "docuSubmodel", and an example AAS "OvenAsset" are created for later usage.
+The "OvenAsset" AAS is dierectly given to the startupEdgeServer(aas) method, when starting the Edge-Server. The Edge-Server is now a representation  
 
-In addition, a new Submodel is added to the AAS-Server as an update to the now existing AAS on the AAS-Server.
+Also a AAS-Client (CloudClient) is initialized to communicate with the Cloud-Server, and a Submodel-Client (Edge-Client) to communicate with the Edge-Server.
 
+First the "OvenAsset" AAS is pushed onto the Cloud-Server with the help of the Cloud-Client.
+After that the Cloud-Server "OvenAsset" AAS is updated by uploading the docuSubmodel with help of the Cloud-Client.
 
 ```
-// Startup the registry
 RegistryHttpServer regServer = startupRegistryServer();
+
 registryClient = new RegistryHttpClient();
+ComponentBuilder._registryClient = registryClient;
 
-//Start the AAS Server (empty)
-AssetAdministrationShellRepositoryHttpServer aasServer = startupAASServer("http://localhost:8081", "https://localhost:8071");
+//Create AAS and docuSubmodel 
+AssetAdministrationShell aas = ComponentBuilder.getAAS();
+Submodel docuSubmodel = ComponentBuilder.getDocuSubmodel();
 
-//Init AAS Client
-AssetAdministrationShellRepositoryHttpClient aasClient = new AssetAdministrationShellRepositoryHttpClient(new Uri("http://localhost:8081"));
+//Start the CloudServer
+AssetAdministrationShellRepositoryHttpServer cloudServer = startupCloudServer();
 
-// Load .aasx file
-AASX aasx = new AASX("aasx/EXAMPLE.aasx"); //AASX Package Manager
-AssetAdministrationShellEnvironment_V2_0 aasx_enviroment = aasx.GetEnvironment_V2_0(); //Load AASX with correct AASX Enviroment
-List<AssetAdministrationShell> bundles = aasx_enviroment.AssetAdministrationShells.ConvertAll(x => (AssetAdministrationShell)x); //Load list of AAS (Bundles) from .aasx file
-AssetAdministrationShell aas = bundles.Find(x => x.IdShort.Equals("EXAMPLE_3S7PM0CP4BD")); // Get the correct AAS (Bundle) in AASX 
+//Start the EdgeServer
+SubmodelHttpServer edgeServer = startupEdgeServer(aas.Identification.Id);
 
-//Push AAS from AASX Bundle to Server
-aasClient.CreateAssetAdministrationShell(aas);
+//Init CloudClient
+AssetAdministrationShellRepositoryHttpClient cloudClient = new AssetAdministrationShellRepositoryHttpClient(new Uri("http://localhost:8081"));
+           
+//Push AAS to Cloud Server
+cloudClient.CreateAssetAdministrationShell(aas);
 
-//Update AAS with Submodel and push to Server
-Submodel maintenance_submodel = new ExampleDynamicSubmodel(); // Init Submodel (SM_ID_SHORT = "maintenance")
-aas.Submodels.Add(maintenance_submodel); // Add the new Submodel to the AAS
-aasClient.UpdateAssetAdministrationShell(aas.Identification.Id, aas);
+//Update AAS with docuSubmodel to Cloud Server
+aas.Submodels.Add(docuSubmodel);
+cloudClient.UpdateAssetAdministrationShell(aas.Identification.Id, aas);
+
+//Add EdgeServer Submodel to CloudServer
+SubmodelHttpClient edgeClient = new SubmodelHttpClient(new Uri("http://localhost:8082"));![image](https://github.com/eclipse-basyx/basyx-dotnet-examples/assets/77283144/e885a20e-5161-4d4a-9531-49055dcb02de)
